@@ -16,7 +16,7 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     TESTING = True
 
-config = {
+app_config = {
         'development': DevelopmentConfig,
-        'testing': DevelopmentConfig,
+        'testing': TestingConfig,
         }

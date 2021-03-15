@@ -1,15 +1,16 @@
-from flask import Flask, jsonify, abort, make_response, Blueprint
+from flask import Flask
 from flask_mysqldb import MySQL
-from flask_restplus import Api, Resource
+from config import app_config
+
+db = MySQL()
+
 from .apis import api
-import MySQLdb.cursors
-import os
-import config
 
 def create_app(config_name):
     app = Flask(__name__)
+    app.config.from_object(app_config[config_name])
+    app_config[config_name].init_app(app)
+    db.init_app(app)
     api.init_app(app)
-    app.config.from_object(config[config_name])
-    config[config_name].init_app(app)
 
-    return api
+    return app
