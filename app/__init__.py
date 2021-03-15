@@ -5,7 +5,6 @@ from flask_cors import CORS
 from config import app_config
 
 db = MySQL()
-
 from .apis import api
 
 def create_app(config_name):
