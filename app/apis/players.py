@@ -1,12 +1,11 @@
-from flask import abort, make_response, jsonify
 from flask_restplus import Namespace, Resource
 
 api = Namespace('players', description= 'The players')
 
-@api.route('/')
+@api.route('')
 class Players(Resource):
     def get(self):
         """
         All players
         """
-        return {"player": "larry walker"}
+        return {'player': 'larry walker'}

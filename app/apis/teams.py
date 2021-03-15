@@ -1,7 +1,8 @@
-from flask import abort, make_response, jsonify
+from flask import make_response, jsonify, abort
 from flask_restplus import Namespace, Resource
-from .. import db
 import MySQLdb.cursors
+
+from .. import db
 
 api = Namespace('teams', description= 'The teams')
 
@@ -11,7 +12,6 @@ class Teams(Resource):
         """
         Teams Franchise
         """
-        # return {"team": "yankees"}
         try:
             cursor = db.connection.cursor(MySQLdb.cursors.DictCursor)
         except Exception:
