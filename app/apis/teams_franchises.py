@@ -1,3 +1,4 @@
+
 from flask import make_response, jsonify, abort
 from flask_restplus import Namespace, Resource
 from MySQLdb import ProgrammingError
@@ -5,38 +6,38 @@ import MySQLdb.cursors
 
 from .. import db
 
-api = Namespace('teams', description= 'The teams')
+api = Namespace('teams-franchises', description= 'The teams franchises')
 
 @api.route('')
-class Teams(Resource):
+class TeamsFranchises(Resource):
     def get(self):
         """
-        Lists all teams
+        Lists all teams franchises
         """
         cursor = db.connection.cursor(MySQLdb.cursors.DictCursor)
         try:
-            cursor.execute('select * from teams limit 5')
+            cursor.execute('select * from teams_franchises limit 5')
         except ProgrammingError:
             abort(500)
             return
-        teams = cursor.fetchall()
+        teams_franchises = cursor.fetchall()
 
-        return make_response(jsonify(teams), 200)
+        return make_response(jsonify(teams_franchises), 200)
 
     def post(self):
         """
-        Adds a team
+        Adds a team franchise
         """
         return abort(501)
 
     def put(self):
         """
-        Updates a team
+        Updates a team franchise
         """
         return abort(501)
 
     def delete(self):
         """
-        Deletes a team
+        Deletes a team franchise
         """
         return abort(501)

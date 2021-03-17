@@ -5,38 +5,38 @@ import MySQLdb.cursors
 
 from .. import db
 
-api = Namespace('teams', description= 'The teams')
+api = Namespace('pitching', description= 'The pitching statistics')
 
 @api.route('')
-class Teams(Resource):
+class Pitching(Resource):
     def get(self):
         """
-        Lists all teams
+        Lists all pitching statistics
         """
         cursor = db.connection.cursor(MySQLdb.cursors.DictCursor)
         try:
-            cursor.execute('select * from teams limit 5')
+            cursor.execute('select * from pitching limit 5')
         except ProgrammingError:
             abort(500)
             return
-        teams = cursor.fetchall()
+        pitching = cursor.fetchall()
 
-        return make_response(jsonify(teams), 200)
+        return make_response(jsonify(pitching), 200)
 
     def post(self):
         """
-        Adds a team
+        Adds a pitching statistic
         """
         return abort(501)
 
     def put(self):
         """
-        Updates a team
+        Updates a pitching statistic
         """
         return abort(501)
 
     def delete(self):
         """
-        Deletes a team
+        Deletes a pitching statistic
         """
         return abort(501)
