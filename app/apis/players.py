@@ -5,7 +5,6 @@ from flask_restplus import fields as rest_fields
 from marshmallow import fields, ValidationError, Schema
 from MySQLdb import ProgrammingError
 import MySQLdb.cursors
-from psycopg2 import sql
 
 from .. import db
 
@@ -80,13 +79,14 @@ class PlayerModel:
 # Marshmallow Schema
 class PlayerSchema(Schema):
     playerID = fields.String()
-    birthYear = fields.String(required=True)
+    birthYear = fields.String(data_key='birth_year', required=True)
     birthMonth = fields.String(required=True)
     birthDay = fields.String(required=True)
     birthCountry = fields.String()
     birthState = fields.String()
     birthCity = fields.String()
 
+# rest_plus schema
 player_model = api.model('Player', {
     'playerID': rest_fields.String,
     'birthYear': rest_fields.String,
@@ -115,9 +115,14 @@ class SinglePlayer(Resource):
             player = PlayerModel().get_by_id(player_id)
         except ProgrammingError:
             abort(500)
+
         if not player:
             return {'message': 'Player could not be found'}, 400
 
+        # From the cursor result:
+        # 1. Create a Player object
+        # 2. Validate it with PlayerSchema (marshmallow)
+        # 3. The result can be filtered with help of the PlayerSchema model
         player_result = PlayerSchema().dump(Player(**player[0]))
         return player_result
 
@@ -134,9 +139,15 @@ class SinglePlayer(Resource):
         json_data = request.get_json()
         if not json_data:
             return {'message': 'No input data provided'}, 400
+
         try:
+            # Validate the data acquired conforms to the PlayerSchema (marsh)
             data = PlayerSchema().load(json_data)
         except ValidationError as err:
             return err.messages, 422
+
+        _ = player_id
+        _ = data
+        # TODO: add player
 
         return {'message': 'a player created'}, 201
