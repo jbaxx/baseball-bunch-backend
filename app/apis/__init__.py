@@ -9,11 +9,19 @@ from .users import api as ns6
 
 from .api_content import api as temp_ns6
 
+# authorizations = {
+#         'apiKey': {
+#             'type': 'apiKey',
+#             'in': 'header',
+#             'name': 'X-API-KEY',
+#             }
+#         }
+
 authorizations = {
-        'apiKey': {
-            'type': 'apiKey',
+        'Basic Auth': {
+            'type': 'basic',
             'in': 'header',
-            'name': 'X-API-KEY',
+            'name': 'authorization',
             }
         }
 

@@ -17,6 +17,7 @@ class AllPlayers(Resource):
     """
     Players
     """
+    @api.doc(security='Basic Auth')
     @auth.login_required
     def get(self):
         """
