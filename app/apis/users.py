@@ -1,4 +1,4 @@
-from flask import make_response, jsonify, abort, request
+from flask import make_response, jsonify, abort, request, g
 from flask_restplus import Namespace
 from flask_restplus import Resource
 from flask_restplus import fields as rest_fields
@@ -8,9 +8,18 @@ from passlib.apps import custom_app_context as pwd_context
 import MySQLdb.cursors
 
 from .. import db
+from .. import auth
 
 
 api = Namespace('users', description= 'The users')
+
+@auth.verify_password
+def verify_password(username, password):
+    user = UserModel().get_by_username(username)
+    if not user or not user.verify_password(password):
+        return False
+    g.user = user
+    return True
 
 # To add new field
 # 1. Add it to the Object class
@@ -20,20 +29,20 @@ class User:
         self.userid = kwargs.get('userid', '')
         self.username = kwargs.get('username', '')
         self.emailAddress = kwargs.get('emailAddress', '')
-        self.password_hash = ''
+        self.password = kwargs.get('password', '')
 
     def hash_password(self, password):
-        self.passord_hash = pwd_context.encrypt(password)
+        self.password = pwd_context.encrypt(password)
 
     def verify_password(self, password):
-        return pwd_context.verify(password, self.password_hash)
+        return pwd_context.verify(password, self.password)
 
 
 # Marshmallow Schema
 class UserSchema(Schema):
     userid = fields.String()
     username = fields.String(data_key='username', required=True)
-    password = fields.String(required=True)
+    password = fields.String(required=True, load_only=True)
     emailAddress = fields.String(required=True)
 
 # rest_plus schema
@@ -73,14 +82,13 @@ class AllUsers(Resource):
         except ValidationError as err:
             return err.messages, 422
 
-        print(user_data)
         username = user_data.get('username')
 
         username_exists = UserModel().get_by_username(username)
         if username is None or username == '':
             abort(422)
         if username_exists:
-            abort(409, description="User already exists")
+            abort(409, description='User already exists')
 
         user = User(
                 username = user_data.get('username'),
@@ -134,6 +142,11 @@ class UserModel:
         except ProgrammingError as err:
             raise err
         users = cursor.fetchall()
+        users_list = []
+        for u in users:
+            print(u)
+            users_list.append(User(**u))
+        users = UserSchema(many=True).dump(users_list)
         return users
 
     def get_by_id(self, user_id):
@@ -144,7 +157,8 @@ class UserModel:
         except ProgrammingError as err:
             raise err
         user = cursor.fetchall()
-        return user
+        user_result = UserSchema().dump(User(**user))
+        return user_result
 
     def get_by_username(self, username):
         query = self.GET_BY_USERNAME_QUERY
@@ -156,7 +170,7 @@ class UserModel:
         user = cursor.fetchone()
         if user is None:
             return ()
-        user_result = UserSchema().dump(User(**user))
+        user_result = User(**user)
         return user_result
 
     def insert_user(self, user: User):
@@ -167,11 +181,9 @@ class UserModel:
             cursor.execute(query,
                     {
                         'username': user.username,
-                        'password_hash': user.password_hash,
+                        'password_hash': user.password,
                         'email_address': user.emailAddress
                         })
-            # cursor.executemany(query,
-            #         [(user.username, user.password_hash, user.emailAddress)])
             db.connection.commit()
         except ProgrammingError as err:
             raise err

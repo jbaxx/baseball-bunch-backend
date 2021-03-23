@@ -148,6 +148,8 @@ disable=abstract-method,
         wrong-import-position,
         xrange-builtin,
         zip-builtin-not-iterating,
+        missing-class-docstring,
+        invalid-name,
 
 
 [REPORTS]

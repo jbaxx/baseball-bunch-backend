@@ -7,6 +7,7 @@ from MySQLdb import ProgrammingError
 import MySQLdb.cursors
 
 from .. import db
+from .. import auth
 
 
 api = Namespace('players', description= 'The players')
@@ -16,6 +17,7 @@ class AllPlayers(Resource):
     """
     Players
     """
+    @auth.login_required
     def get(self):
         """
         Lists all players

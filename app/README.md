@@ -9,4 +9,5 @@ pip install Flask
 pip install flask-cors
 pip install flask-mysqldb
 pip install flask-restplus
+pip install Flask_HTTPAuth
 ```
