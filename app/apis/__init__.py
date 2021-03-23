@@ -5,6 +5,7 @@ from .pitching import api as ns2
 from .players import api as ns3
 from .teams import api as ns4
 from .teams_franchises import api as ns5
+from .users import api as ns6
 
 from .api_content import api as temp_ns6
 
@@ -29,4 +30,5 @@ api.add_namespace(ns2)
 api.add_namespace(ns3)
 api.add_namespace(ns4)
 api.add_namespace(ns5)
+api.add_namespace(ns6)
 api.add_namespace(temp_ns6)

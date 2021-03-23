@@ -39,11 +39,14 @@ class Player:
 
 class PlayerModel:
     def __init__(self):
+        # TODO: remove limits
         self.GET_ALL_QUERY = """
         SELECT
             *
         FROM
             players
+
+        LIMIT 100
         """
 
         self.GET_BY_ID_QUERY = """
