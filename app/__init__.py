@@ -1,12 +1,14 @@
-from flask_mysqldb import MySQL
 from flask import Flask
 from flask_cors import CORS
+from flask_httpauth import HTTPBasicAuth
 from flask_marshmallow import Marshmallow
+from flask_mysqldb import MySQL
 
 from config import app_config
 
 db = MySQL()
 ma = Marshmallow()
+auth = HTTPBasicAuth()
 from .apis import api
 
 def create_app(config_name):
