@@ -18,17 +18,26 @@ from .api_content import api as temp_ns6
 #         }
 
 authorizations = {
-        'Basic Auth': {
-            'type': 'basic',
+        'Bearer Auth': {
+            'type': 'apiKey',
             'in': 'header',
-            'name': 'authorization',
+            'name': 'Authorization',
             }
         }
+
+# authorizations = {
+#         'Basic Auth': {
+#             'type': 'basic',
+#             'in': 'header',
+#             'name': 'authorization',
+#             }
+#         }
 
 api = Api(
         title='The Baseball Bunch - Fantasy Baseball Analysis Toolkit',
         version='1.0',
         description='Predict and improve your fantasy game',
+        security='Bearer Auth',
         authorizations=authorizations,
         doc='/api/docs/'
         )

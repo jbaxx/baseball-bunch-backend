@@ -10,6 +10,7 @@ import MySQLdb.cursors
 
 from .. import db
 from .. import auth
+from .. import token_auth
 
 
 api = Namespace('users', description= 'The users')
@@ -29,6 +30,14 @@ def verify_password(username_or_token, password):
         user = UserModel().get_by_username(username_or_token)
         if not user or not user.verify_password(password):
             return False
+    g.user = user
+    return True
+
+@token_auth.verify_token
+def verify_token(token):
+    user = User().verify_auth_token(token)
+    if not user:
+        return False
     g.user = user
     return True
 

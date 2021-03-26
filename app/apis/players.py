@@ -8,6 +8,7 @@ import MySQLdb.cursors
 
 from .. import db
 from .. import auth
+from .. import token_auth
 
 
 api = Namespace('players', description= 'The players')
@@ -26,18 +27,24 @@ class AllPlayers(Resource):
         players = PlayerModel().get_all()
         return make_response(jsonify(players), 200)
 
+
 # To add new field
 # 1. Add it to the Object class
 # 2. Add it to the ObjectSchema class
 class Player:
     def __init__(self, **kwargs):
-        self.playerID = kwargs.get('playerID', '')
-        self.birthYear = kwargs.get('birthYear', '')
-        self.birthMonth = kwargs.get('birthMonth', '')
-        self.birthDay = kwargs.get('birthDay', '')
-        self.birthCountry = kwargs.get('birthCountry', '')
-        self.birthState = kwargs.get('birthState', '')
-        self.birthCity = kwargs.get('birthCity', '')
+        self.playerid = kwargs.get('playerid', '')
+        self.birthmonth = kwargs.get('birthmonth', '')
+        self.birthyear = kwargs.get('birthyear', '')
+        self.birthday = kwargs.get('birthday', '')
+        self.namefirst = kwargs.get('namefirst', '')
+        self.namelast = kwargs.get('namelast', '')
+        self.bats = kwargs.get('bats', '')
+        self.throws = kwargs.get('throws', '')
+        self.currentteamid = kwargs.get('currentteamid', '')
+        self.debut = kwargs.get('debut', '')
+        self.final_game = kwargs.get('final_game', '')
+        self.active = kwargs.get('active', '')
 
 
 class PlayerModel:
@@ -58,7 +65,7 @@ class PlayerModel:
         FROM
             players
         WHERE
-            playerID = %(player_id)s
+            playerid = %(player_id)s
         """
 
     def get_all(self):
@@ -84,23 +91,34 @@ class PlayerModel:
 
 # Marshmallow Schema
 class PlayerSchema(Schema):
-    playerID = fields.String()
-    birthYear = fields.String(data_key='birth_year', required=True)
-    birthMonth = fields.String(required=True)
-    birthDay = fields.String(required=True)
-    birthCountry = fields.String()
-    birthState = fields.String()
-    birthCity = fields.String()
+    playerid = fields.String(required=True)
+    birthmonth = fields.String()
+    birthyear = fields.String()
+    birthday = fields.String()
+    namefirst = fields.String()
+    namelast = fields.String()
+    bats = fields.String()
+    throws = fields.String()
+    currentteamid = fields.String()
+    debut = fields.String()
+    final_game = fields.String()
+    active = fields.String()
+
 
 # rest_plus schema
 player_model = api.model('Player', {
-    'playerID': rest_fields.String,
-    'birthYear': rest_fields.String,
-    'birthMonth': rest_fields.String,
-    'birthDay': rest_fields.String,
-    'birthCountry': rest_fields.String,
-    'birthState': rest_fields.String,
-    'birthCity': rest_fields.String,
+    'playerid': rest_fields.String,
+    'birthmonth': rest_fields.String,
+    'birthyear': rest_fields.String,
+    'birthday': rest_fields.String,
+    'namefirst': rest_fields.String,
+    'namelast': rest_fields.String,
+    'bats': rest_fields.String,
+    'throws': rest_fields.String,
+    'currentteamid': rest_fields.String,
+    'debut': rest_fields.String,
+    'final_game': rest_fields.String,
+    'active': rest_fields.String,
     })
 
 
@@ -113,6 +131,7 @@ class SinglePlayer(Resource):
     @api.response(200, 'Success', player_model)  # Api documentation
     @api.response(400, 'Player not found')  # Api documentation
     @api.response(500, 'Query error')  # Api documentation
+    @token_auth.login_required
     def get(self, player_id):
         """
         Get a player by id
