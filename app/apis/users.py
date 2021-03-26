@@ -1,10 +1,11 @@
-from flask import make_response, jsonify, abort, request, g
+from flask import make_response, jsonify, abort, request, g, current_app
 from flask_restplus import Namespace
 from flask_restplus import Resource
 from flask_restplus import fields as rest_fields
 from marshmallow import fields, ValidationError, Schema
 from MySQLdb import ProgrammingError
 from passlib.apps import custom_app_context as pwd_context
+from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
 import MySQLdb.cursors
 
 from .. import db
@@ -13,11 +14,21 @@ from .. import auth
 
 api = Namespace('users', description= 'The users')
 
+# @auth.verify_password
+# def verify_password(username, password):
+#     user = UserModel().get_by_username(username)
+#     if not user or not user.verify_password(password):
+#         return False
+#     g.user = user
+#     return True
+
 @auth.verify_password
-def verify_password(username, password):
-    user = UserModel().get_by_username(username)
-    if not user or not user.verify_password(password):
-        return False
+def verify_password(username_or_token, password):
+    user = User().verify_auth_token(username_or_token)
+    if not user:
+        user = UserModel().get_by_username(username_or_token)
+        if not user or not user.verify_password(password):
+            return False
     g.user = user
     return True
 
@@ -36,6 +47,30 @@ class User:
 
     def verify_password(self, password):
         return pwd_context.verify(password, self.password)
+
+    def generate_auth_token(self, expiration = 600):
+        s = Serializer(current_app.config['SECRET_KEY'],expires_in = expiration)
+        return s.dumps({'id': self.userid})
+
+    @staticmethod
+    def verify_auth_token(token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except SignatureExpired:
+            return None # token was valid, but expired
+        except BadSignature:
+            return None # invalid token
+        user = UserModel().get_by_id(data['id'])
+        return user
+
+
+@api.route('/token')
+class Token(Resource):
+    @auth.login_required
+    def get(self):
+        token = g.user.generate_auth_token()
+        return jsonify({ 'token': token.decode('ascii') })
 
 
 # Marshmallow Schema
@@ -157,7 +192,7 @@ class UserModel:
         except ProgrammingError as err:
             raise err
         user = cursor.fetchall()
-        user_result = UserSchema().dump(User(**user))
+        user_result = UserSchema().dump(User(**user[0]))
         return user_result
 
     def get_by_username(self, username):
