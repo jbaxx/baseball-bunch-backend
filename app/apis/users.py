@@ -128,7 +128,6 @@ class UserModel:
         users = cursor.fetchall()
         users_list = []
         for u in users:
-            print(u)
             users_list.append(User(**u))
         users = UserSchema(many=True).dump(users_list)
         return users
@@ -175,12 +174,15 @@ class UserModel:
             raise err
 
 
-
 @api.route('')
 class AllUsers(Resource):
     """
     Users
     """
+    @api.doc(security='Bearer Auth')
+    @api.response(200, 'Success', [user_model])  # Api documentation
+    @api.response(401, 'Unauthorized Access')  # Api documentation
+    @token_auth.login_required
     def get(self):
         """
         Lists all users
@@ -219,6 +221,5 @@ class AllUsers(Resource):
         user.hash_password(user_data.get('password'))
 
         UserModel().insert_user(user)
-        print(UserModel().get_by_username(username))
 
         return {'message': 'a user created'}, 201
