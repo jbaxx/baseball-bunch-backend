@@ -1,11 +1,18 @@
-from flask import make_response, jsonify, abort, request, g, current_app
+from flask import abort
+from flask import current_app
+from flask import g
+from flask import jsonify
+from flask import make_response
+from flask import request
 from flask_restplus import Namespace
 from flask_restplus import Resource
 from flask_restplus import fields as rest_fields
-from marshmallow import fields, ValidationError, Schema
-from MySQLdb import ProgrammingError
-from passlib.apps import custom_app_context as pwd_context
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
+from marshmallow import Schema
+from marshmallow import ValidationError
+from marshmallow import fields
+from passlib.apps import custom_app_context as pwd_context
+from MySQLdb import ProgrammingError
 import MySQLdb.cursors
 
 from .. import db
