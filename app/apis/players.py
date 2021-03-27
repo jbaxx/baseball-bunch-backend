@@ -1,8 +1,12 @@
-from flask import make_response, jsonify, abort
+from flask import abort
+from flask import jsonify
+from flask import make_response
 from flask_restplus import Namespace
 from flask_restplus import Resource
 from flask_restplus import fields as rest_fields
-from marshmallow import fields, ValidationError, Schema
+from marshmallow import Schema
+from marshmallow import ValidationError
+from marshmallow import fields
 from MySQLdb import ProgrammingError
 import MySQLdb.cursors
 
