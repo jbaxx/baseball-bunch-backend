@@ -1,4 +1,4 @@
-from flask import make_response, jsonify, abort, request
+from flask import make_response, jsonify, abort
 from flask_restplus import Namespace
 from flask_restplus import Resource
 from flask_restplus import fields as rest_fields
@@ -11,21 +11,8 @@ from .. import auth
 from .. import token_auth
 
 
-api = Namespace('players', description= 'The players')
+api = Namespace('api/players', description= 'The players')
 
-@api.route('')
-class AllPlayers(Resource):
-    """
-    Players
-    """
-    @api.doc(security='Basic Auth')
-    @auth.login_required
-    def get(self):
-        """
-        Lists all players
-        """
-        players = PlayerModel().get_all()
-        return make_response(jsonify(players), 200)
 
 
 # To add new field
@@ -45,6 +32,38 @@ class Player:
         self.debut = kwargs.get('debut', '')
         self.final_game = kwargs.get('final_game', '')
         self.active = kwargs.get('active', '')
+
+# Marshmallow Schema
+class PlayerSchema(Schema):
+    playerid = fields.String(required=True)
+    birthmonth = fields.String()
+    birthyear = fields.String()
+    birthday = fields.String()
+    namefirst = fields.String()
+    namelast = fields.String()
+    bats = fields.String()
+    throws = fields.String()
+    currentteamid = fields.String()
+    debut = fields.String()
+    final_game = fields.String()
+    active = fields.String()
+
+
+# rest_plus schema
+player_model = api.model('Player', {
+    'playerid': rest_fields.String,
+    'birthmonth': rest_fields.String,
+    'birthyear': rest_fields.String,
+    'birthday': rest_fields.String,
+    'namefirst': rest_fields.String,
+    'namelast': rest_fields.String,
+    'bats': rest_fields.String,
+    'throws': rest_fields.String,
+    'currentteamid': rest_fields.String,
+    'debut': rest_fields.String,
+    'final_game': rest_fields.String,
+    'active': rest_fields.String,
+    })
 
 
 class PlayerModel:
@@ -89,38 +108,6 @@ class PlayerModel:
         return player
 
 
-# Marshmallow Schema
-class PlayerSchema(Schema):
-    playerid = fields.String(required=True)
-    birthmonth = fields.String()
-    birthyear = fields.String()
-    birthday = fields.String()
-    namefirst = fields.String()
-    namelast = fields.String()
-    bats = fields.String()
-    throws = fields.String()
-    currentteamid = fields.String()
-    debut = fields.String()
-    final_game = fields.String()
-    active = fields.String()
-
-
-# rest_plus schema
-player_model = api.model('Player', {
-    'playerid': rest_fields.String,
-    'birthmonth': rest_fields.String,
-    'birthyear': rest_fields.String,
-    'birthday': rest_fields.String,
-    'namefirst': rest_fields.String,
-    'namelast': rest_fields.String,
-    'bats': rest_fields.String,
-    'throws': rest_fields.String,
-    'currentteamid': rest_fields.String,
-    'debut': rest_fields.String,
-    'final_game': rest_fields.String,
-    'active': rest_fields.String,
-    })
-
 
 @api.route('/<player_id>')
 @api.doc(params={'player_id': 'A player ID'})
@@ -128,8 +115,10 @@ class SinglePlayer(Resource):
     """
     Player based methods
     """
+    @api.doc(security='Bearer Auth')
     @api.response(200, 'Success', player_model)  # Api documentation
     @api.response(400, 'Player not found')  # Api documentation
+    @api.response(401, 'Unauthorized Access')  # Api documentation
     @api.response(500, 'Query error')  # Api documentation
     @token_auth.login_required
     def get(self, player_id):
@@ -154,25 +143,41 @@ class SinglePlayer(Resource):
         # return make_response(jsonify(player_result), 200)
 
 
-    @api.response(201, 'Player created')  # Api documentation
-    @api.response(422, 'Wrong body schema')  # Api documentation
-    @api.expect(player_model, validate=True)
-    def post(self, player_id):
-        """
-        Adds a player
-        """
-        json_data = request.get_json()
-        if not json_data:
-            return {'message': 'No input data provided'}, 400
+    # @api.response(201, 'Player created')  # Api documentation
+    # @api.response(422, 'Wrong body schema')  # Api documentation
+    # @api.expect(player_model, validate=True)
+    # def post(self, player_id):
+    #     """
+    #     Adds a player
+    #     """
+    #     json_data = request.get_json()
+    #     if not json_data:
+    #         return {'message': 'No input data provided'}, 400
 
-        try:
-            # Validate the data acquired conforms to the PlayerSchema (marsh)
-            data = PlayerSchema().load(json_data)
-        except ValidationError as err:
-            return err.messages, 422
+    #     try:
+    #         # Validate the data acquired conforms to the PlayerSchema (marsh)
+    #         data = PlayerSchema().load(json_data)
+    #     except ValidationError as err:
+    #         return err.messages, 422
 
-        _ = player_id
-        _ = data
-        # TODO: add player
+    #     _ = player_id
+    #     _ = data
+    #     # TODO: add player
 
-        return {'message': 'a player created'}, 201
+    #     return {'message': 'a player created'}, 201
+
+
+
+# @api.route('')
+# class AllPlayers(Resource):
+#     """
+#     Players
+#     """
+#     @api.doc(security='Basic Auth')
+#     @auth.login_required
+#     def get(self):
+#         """
+#         Lists all players
+#         """
+#         players = PlayerModel().get_all()
+#         return make_response(jsonify(players), 200)
