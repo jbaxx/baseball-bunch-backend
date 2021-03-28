@@ -1,8 +1,14 @@
+import werkzeug
+werkzeug.cached_property = werkzeug.utils.cached_property
 from flask_restplus import Api
 
+# Implemented
 from .users            import api as ns1
 from .token            import api as ns2
 from .players          import api as ns3
+from .sentry_debug     import api as sentry_debug
+
+# In progress
 from .batting          import api as ns4
 from .pitching         import api as ns5
 from .teams            import api as ns6
@@ -35,6 +41,8 @@ api = Api(
 api.add_namespace(ns1)
 api.add_namespace(ns2)
 api.add_namespace(ns3)
+api.add_namespace(sentry_debug)
+
 api.add_namespace(ns4)
 api.add_namespace(ns5)
 api.add_namespace(ns6)
