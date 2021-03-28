@@ -2,6 +2,7 @@ aniso8601==9.0.1
 astroid==2.5.1
 attrs==20.3.0
 blinker==1.4
+certifi==2020.12.5
 click==7.1.2
 Deprecated==1.2.12
 Flask==1.1.2
@@ -35,10 +36,12 @@ pyrsistent==0.17.3
 python-dateutil==2.8.1
 pytz==2021.1
 pytzdata==2020.1
+sentry-sdk==1.0.0
 six==1.15.0
 toml==0.10.2
 typed-ast==1.4.2
 typing-extensions==3.7.4.3
-Werkzeug==0.16.1
+urllib3==1.26.4
+Werkzeug==1.0.1
 wrapt==1.12.1
 zipp==3.4.1
