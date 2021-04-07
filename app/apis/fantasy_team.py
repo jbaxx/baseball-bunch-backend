@@ -1,3 +1,4 @@
+import urllib.parse
 from flask import abort
 from flask import g
 from flask import jsonify
@@ -19,6 +20,8 @@ from .. import token_auth
 api = Namespace('api/fantasy-team', description= 'The fantasy teams')
 
 
+def parse_url(url):
+    return urllib.parse.unquote(url)
 
 # To add new field
 # 1. Add it to the Object class
@@ -261,6 +264,7 @@ class FullFantasyTeam(Resource):
             return err.messages, 422
 
         teamname = fantasy_team_data.get('teamname')
+        teamname = parse_url(teamname)
 
         user_id = g.user.get('userid')
 
@@ -272,7 +276,7 @@ class FullFantasyTeam(Resource):
             abort(409, description='Team Name already exists')
 
         fantasy_team = FantasyTeam(
-                teamname = fantasy_team_data.get('teamname'),
+                teamname = teamname,
                 userid = user_id,
         )
 
@@ -332,6 +336,7 @@ class NamedFantasyTeam(Resource):
         """
         Get a fantasy team by name
         """
+        fantasy_team_name = parse_url(fantasy_team_name)
         user_id = g.user.get('userid')
         try:
             # pylint: disable=line-too-long
@@ -360,6 +365,7 @@ class NamedFantasyTeam(Resource):
         """
         Delete a fantasy team by name
         """
+        fantasy_team_name = parse_url(fantasy_team_name)
         user_id = g.user.get('userid')
         try:
             # pylint: disable=line-too-long
@@ -401,7 +407,7 @@ class NamedFantasyTeam(Resource):
         """
         Update a fantasy team attributes (found by name)
         """
-
+        fantasy_team_name = parse_url(fantasy_team_name)
         json_data = request.get_json()
         if not json_data:
             return {'message': 'No input data provided'}, 400
@@ -413,6 +419,7 @@ class NamedFantasyTeam(Resource):
             return err.messages, 422
 
         new_teamname = fantasy_team_data.get('teamname')
+        new_teamname = parse_url(new_teamname)
 
         user_id = g.user.get('userid')
         try:
