@@ -210,9 +210,9 @@ class NamedFantasyTeamLineup(Resource):
     """
     @api.doc(security='Bearer Auth')
     @api.response(200, 'Success', fantasy_team_lineup_model)  # Api documentation
-    @api.response(400, 'Fantasy Team Lineup not found')  # Api documentation
     @api.response(401, 'Unauthorized Access')  # Api documentation
-    @api.response(500, 'Query error')  # Api documentation
+    @api.response(404, 'Fantasy Team Lineup not found')  # Api documentation
+    @api.response(409, 'Fantasy Team does not have lineup')  # Api documentation
     @token_auth.login_required
     def get(self, fantasy_team_id):
         """
@@ -226,7 +226,7 @@ class NamedFantasyTeamLineup(Resource):
             abort(500)
 
         if not fantasy_team:
-            return {'message': 'Fantasy Team could not be found'}, 404
+            abort(404, 'Fantasy Team could not be found')
 
         try:
             # pylint: disable=line-too-long
@@ -236,12 +236,15 @@ class NamedFantasyTeamLineup(Resource):
 
 
         if len(fantasy_team_lineup_result) == 0:
-            return {'message': 'Fantasy Team does not have lineup'}, 404
-        # fantasy_team_lineup_result = FantasyTeamLineupSchema().dump(FantasyTeamLineup(**fantasy_team[0]))
+            abort(409, description='Fantasy Team does not have lineup')
+
         return fantasy_team_lineup_result
 
     @api.doc(security='Bearer Auth')
     @api.response(201, 'Fantasy Team Lineup created')  # Api documentation
+    @api.response(401, 'Unauthorized Access')  # Api documentation
+    @api.response(404, 'Fantasy Team could not be found')  # Api documentation
+    @api.response(409, 'Fantasy Team Lineup already exists')  # Api documentation
     @api.response(422, 'Wrong body schema')  # Api documentation
     @api.expect(fantasy_team_lineup_model, validate=True)
     @token_auth.login_required
@@ -269,7 +272,7 @@ class NamedFantasyTeamLineup(Resource):
             abort(500)
 
         if not fantasy_team:
-            return {'message': 'Fantasy Team could not be found'}, 404
+            abort(404, 'Fantasy Team could not be found')
 
 
         # pylint: disable=line-too-long
@@ -296,7 +299,10 @@ class NamedFantasyTeamLineup(Resource):
         return {'message': 'Fantasy Team Lineup created'}, 201
 
     @api.doc(security='Bearer Auth')
-    @api.response(200, 'Fantasy Team Lineup created')  # Api documentation
+    @api.response(200, 'Fantasy Team Lineup updated')  # Api documentation
+    @api.response(401, 'Unauthorized Access')  # Api documentation
+    @api.response(404, 'Fantasy Team could not be found')  # Api documentation
+    @api.response(409, 'Fantasy Team does not have lineup')  # Api documentation
     @api.response(422, 'Wrong body schema')  # Api documentation
     @api.expect(fantasy_team_lineup_model, validate=True)
     @token_auth.login_required
@@ -324,7 +330,7 @@ class NamedFantasyTeamLineup(Resource):
             abort(500)
 
         if not fantasy_team:
-            return {'message': 'Fantasy Team could not be found'}, 404
+            abort(404, 'Fantasy Team could not be found')
 
 
         # pylint: disable=line-too-long
@@ -351,7 +357,10 @@ class NamedFantasyTeamLineup(Resource):
         return {'message': 'Fantasy Team Lineup updated'}, 200
 
     @api.doc(security='Bearer Auth')
-    @api.response(200, 'Fantasy Team Lineup created')  # Api documentation
+    @api.response(200, 'Fantasy Team Lineup deleted')  # Api documentation
+    @api.response(401, 'Unauthorized Access')  # Api documentation
+    @api.response(404, 'Fantasy Team could not be found')  # Api documentation
+    @api.response(409, 'Fantasy Team does not have lineup')  # Api documentation
     @api.response(422, 'Wrong body schema')  # Api documentation
     @token_auth.login_required
     def delete(self, fantasy_team_id):
@@ -369,7 +378,7 @@ class NamedFantasyTeamLineup(Resource):
             abort(500)
 
         if not fantasy_team:
-            return {'message': 'Fantasy Team could not be found'}, 404
+            abort(404, 'Fantasy Team could not be found')
 
 
         # pylint: disable=line-too-long
