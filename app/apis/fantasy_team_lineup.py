@@ -1,8 +1,6 @@
 import urllib.parse
 from flask import abort
 from flask import g
-from flask import jsonify
-from flask import make_response
 from flask import request
 from flask_restplus import Namespace
 from flask_restplus import Resource
@@ -114,6 +112,13 @@ class FantasyTeamLineupModel:
         (%(fantasyteamid)s, %(right_fielder)s);
         """
 
+        self.DELETE_FANTASY_TEAM_LINEUP_QUERY = """
+        DELETE FROM
+            fantasy_team_players
+        WHERE
+            fantasyteamid = %(fantasyteamid)s;
+        """
+
     def get_by_team_id(self, team_id):
         query = self.GET_BY_ID_QUERY
         cursor = db.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -150,6 +155,53 @@ class FantasyTeamLineupModel:
         except ProgrammingError as err:
             raise err
 
+    def update_fantasy_team_lineup(self, fantasy_team_id, fantasy_team_lineup: FantasyTeamLineup):
+        query = self.DELETE_FANTASY_TEAM_LINEUP_QUERY
+
+        cursor = db.connection.cursor(MySQLdb.cursors.DictCursor)
+        try:
+            cursor.execute(query,
+                    {
+                        'fantasyteamid': fantasy_team_id,
+                        })
+            db.connection.commit()
+        except ProgrammingError as err:
+            raise err
+
+        query = self.INSERT_FANTASY_TEAM_LINEUP_QUERY
+
+        try:
+            cursor.execute(query,
+                    {
+                        'fantasyteamid': fantasy_team_id,
+                        'pitcher': fantasy_team_lineup.pitcher,
+                        'catcher': fantasy_team_lineup.catcher,
+                        'first_base': fantasy_team_lineup.first_base,
+                        'second_base': fantasy_team_lineup.second_base,
+                        'third_base': fantasy_team_lineup.third_base,
+                        'short_stop': fantasy_team_lineup.short_stop,
+                        'left_fielder': fantasy_team_lineup.left_fielder,
+                        'center_fielder': fantasy_team_lineup.center_fielder,
+                        'right_fielder': fantasy_team_lineup.right_fielder,
+                        })
+            db.connection.commit()
+        except ProgrammingError as err:
+            raise err
+
+    def delete_fantasy_team_lineup(self, fantasy_team_id):
+        query = self.DELETE_FANTASY_TEAM_LINEUP_QUERY
+
+        cursor = db.connection.cursor(MySQLdb.cursors.DictCursor)
+        try:
+            cursor.execute(query,
+                    {
+                        'fantasyteamid': fantasy_team_id,
+                        })
+            db.connection.commit()
+        except ProgrammingError as err:
+            raise err
+
+
 @api.route('/<fantasy_team_id>')
 @api.doc(params={'fantasy_team_id': 'A Fantasy Team ID'})
 class NamedFantasyTeamLineup(Resource):
@@ -182,7 +234,6 @@ class NamedFantasyTeamLineup(Resource):
         except ProgrammingError:
             abort(500)
 
-        print(fantasy_team_lineup_result)
 
         if len(fantasy_team_lineup_result) == 0:
             return {'message': 'Fantasy Team does not have lineup'}, 404
@@ -202,7 +253,6 @@ class NamedFantasyTeamLineup(Resource):
         if not json_data:
             return {'message': 'No input data provided'}, 400
 
-        print(json_data)
         try:
             # Validate the data acquired conforms to the UserSchema (marsh)
             fantasy_team_lineup_data = FantasyTeamLineupSchema().load(json_data)
@@ -227,7 +277,7 @@ class NamedFantasyTeamLineup(Resource):
         if fantasy_team_id is None or fantasy_team_id == '':
             abort(422)
         if team_lineup_exists:
-            abort(409, description='Team Name already exists')
+            abort(409, description='Fantasy Team Lineup already exists')
 
         fantasy_team_lineup = FantasyTeamLineup(
                 pitcher = fantasy_team_lineup_data.get('pitcher'),
@@ -243,4 +293,92 @@ class NamedFantasyTeamLineup(Resource):
 
         FantasyTeamLineupModel().insert_fantasy_team_lineup(fantasy_team_id, fantasy_team_lineup)
 
-        return {'message': 'a fantasy team lineup created'}, 201
+        return {'message': 'Fantasy Team Lineup created'}, 201
+
+    @api.doc(security='Bearer Auth')
+    @api.response(200, 'Fantasy Team Lineup created')  # Api documentation
+    @api.response(422, 'Wrong body schema')  # Api documentation
+    @api.expect(fantasy_team_lineup_model, validate=True)
+    @token_auth.login_required
+    def put(self, fantasy_team_id):
+        """
+        Updates a Fantasy Team Lineup
+        """
+        json_data = request.get_json()
+        if not json_data:
+            return {'message': 'No input data provided'}, 400
+
+        try:
+            # Validate the data acquired conforms to the UserSchema (marsh)
+            fantasy_team_lineup_data = FantasyTeamLineupSchema().load(json_data)
+        except ValidationError as err:
+            return err.messages, 422
+
+        # Validate Fantasy Team exists for current user,
+        # before executing any action
+        user_id = g.user.get('userid')
+        try:
+            # pylint: disable=line-too-long
+            fantasy_team = FantasyTeamModel().get_by_userid_teamid(user_id, fantasy_team_id)
+        except ProgrammingError:
+            abort(500)
+
+        if not fantasy_team:
+            return {'message': 'Fantasy Team could not be found'}, 404
+
+
+        # pylint: disable=line-too-long
+        team_lineup_exists = FantasyTeamLineupModel().get_by_team_id(fantasy_team_id)
+        if fantasy_team_id is None or fantasy_team_id == '':
+            abort(422)
+        if not team_lineup_exists:
+            abort(409, description='Fantasy Team does not have lineup')
+
+        fantasy_team_lineup = FantasyTeamLineup(
+                pitcher = fantasy_team_lineup_data.get('pitcher'),
+                catcher = fantasy_team_lineup_data.get('catcher'),
+                first_base = fantasy_team_lineup_data.get('first_base'),
+                second_base = fantasy_team_lineup_data.get('second_base'),
+                third_base = fantasy_team_lineup_data.get('third_base'),
+                short_stop = fantasy_team_lineup_data.get('short_stop'),
+                left_fielder = fantasy_team_lineup_data.get('left_fielder'),
+                center_fielder = fantasy_team_lineup_data.get('center_fielder'),
+                right_fielder = fantasy_team_lineup_data.get('right_fielder'),
+        )
+
+        FantasyTeamLineupModel().update_fantasy_team_lineup(fantasy_team_id, fantasy_team_lineup)
+
+        return {'message': 'Fantasy Team Lineup updated'}, 200
+
+    @api.doc(security='Bearer Auth')
+    @api.response(200, 'Fantasy Team Lineup created')  # Api documentation
+    @api.response(422, 'Wrong body schema')  # Api documentation
+    @token_auth.login_required
+    def delete(self, fantasy_team_id):
+        """
+        Updates a Fantasy Team Lineup
+        """
+
+        # Validate Fantasy Team exists for current user,
+        # before executing any action
+        user_id = g.user.get('userid')
+        try:
+            # pylint: disable=line-too-long
+            fantasy_team = FantasyTeamModel().get_by_userid_teamid(user_id, fantasy_team_id)
+        except ProgrammingError:
+            abort(500)
+
+        if not fantasy_team:
+            return {'message': 'Fantasy Team could not be found'}, 404
+
+
+        # pylint: disable=line-too-long
+        team_lineup_exists = FantasyTeamLineupModel().get_by_team_id(fantasy_team_id)
+        if fantasy_team_id is None or fantasy_team_id == '':
+            abort(422)
+        if not team_lineup_exists:
+            abort(409, description='Fantasy Team does not have lineup')
+
+        FantasyTeamLineupModel().delete_fantasy_team_lineup(fantasy_team_id)
+
+        return {'message': 'Fantasy Team Lineup deleted'}, 200
