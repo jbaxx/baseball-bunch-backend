@@ -220,14 +220,14 @@ class NamedPlayerStats(Resource):
     """
     Player Stats Methods
     """
-    # @api.doc(security='Bearer Auth')
+    @api.doc(security='Bearer Auth')
     @api.response(200, 'Success', jugador_model)  # Api documentation
     @api.response(400, 'Player could not be found')  # Api documentation
     @api.response(401, 'Unauthorized Access')  # Api documentation
-    # @token_auth.login_required
+    @token_auth.login_required
     def get(self, player_id):
         """
-        Get a player id stats for all seasons
+        Get a player stats for all seasons
         """
         # scherma01
         # bauertr01
