@@ -1,4 +1,6 @@
+import urllib.parse
 from flask import abort
+from flask import jsonify
 from flask_restplus import Namespace
 from flask_restplus import Resource
 from flask_restplus import fields as rest_fields
@@ -7,12 +9,28 @@ from marshmallow import fields
 from MySQLdb import ProgrammingError
 import MySQLdb.cursors
 
+# from flask import abort
+# from flask import g
+# from flask import make_response
+# from flask import request
+# from flask_restplus import Namespace
+# from flask_restplus import Resource
+# from flask_restplus import fields as rest_fields
+# from marshmallow import Schema
+# from marshmallow import ValidationError
+# from marshmallow import fields
+# from MySQLdb import ProgrammingError
+# import MySQLdb.cursors
+
 from .. import db
+from .. import mongo
 from .. import token_auth
 
 
-api = Namespace('api/players', description= 'The players')
+api = Namespace('api/player', description= 'The players')
 
+def parse_url(url):
+    return urllib.parse.unquote(url)
 
 
 # To add new field
@@ -142,3 +160,90 @@ class SinglePlayer(Resource):
 
         # return make_response(jsonify(player_result), 200)
 
+
+
+
+class Sazon:
+    def __init__(self, **kwargs):
+        self.AB = kwargs.get('AB', '')
+        self.G = kwargs.get('G', '')
+        self.H = kwargs.get('H', '')
+        self.R = kwargs.get('R', '')
+        self.Team = kwargs.get('Team', '')
+        self.Year = kwargs.get('Year', '')
+
+class Jugador:
+    def __init__(self, **kwargs):
+        self.FirstName = kwargs.get('FirstName', '')
+        self.LastName = kwargs.get('LastName', '')
+        temps = kwargs.get('Seasons', '')
+        tempera = [Sazon(**tepe) for tepe in temps]
+        self.Seasons = tempera
+        self.Id = kwargs.get('Id', '')
+
+
+class SeasonsSchema(Schema):
+    AB = fields.String(data_key='ab')
+    H = fields.String(data_key='h')
+    G = fields.String(data_key='g')
+    R = fields.String(data_key='r')
+    Team = fields.String(data_key='team')
+    Year = fields.String(data_key='year')
+
+class JugadorSchema(Schema):
+    FirstName = fields.String(data_key='first_name')
+    LastName = fields.String(data_key='last_name')
+    Id = fields.String(data_key='_id_')
+    Seasons = fields.List(fields.Nested(SeasonsSchema), data_key='seasons')
+
+
+temporada_model = api.model('TemporadaModel', {
+    'ab': rest_fields.String,
+    'h': rest_fields.String,
+    'g': rest_fields.String,
+    'r': rest_fields.String,
+    'team': rest_fields.String,
+    'year': rest_fields.String,
+    })
+
+jugador_model = api.model('JugadorModel', {
+    'first_name': rest_fields.String,
+    'last_name': rest_fields.String,
+    '_id_': rest_fields.String,
+    'seasons': rest_fields.List(rest_fields.Nested(temporada_model))
+    })
+
+
+@api.route('/<player_id>/stats')
+@api.doc(params={'player_id': 'A player id'})
+class NamedPlayerStats(Resource):
+    """
+    Player Stats Methods
+    """
+    # @api.doc(security='Bearer Auth')
+    @api.response(200, 'Success', jugador_model)  # Api documentation
+    @api.response(400, 'Player could not be found')  # Api documentation
+    @api.response(401, 'Unauthorized Access')  # Api documentation
+    # @token_auth.login_required
+    def get(self, player_id):
+        """
+        Get a player id stats for all seasons
+        """
+        # scherma01
+        # bauertr01
+
+        player_id = parse_url(player_id)
+
+        pred = mongo.db.predictionData.find({'Id': player_id})
+        pred_list = []
+        for p in pred:
+            p.pop('_id')
+            pred_list.append(p)
+
+        if len(pred_list) == 0:
+            abort(404, 'Player could not be found')
+
+        theplayer = pred_list[0]
+        theplayerObject = Jugador(**theplayer)
+        player = JugadorSchema().dump(theplayerObject)
+        return jsonify(player)

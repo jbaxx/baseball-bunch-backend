@@ -4,6 +4,7 @@ from flask_httpauth import HTTPBasicAuth
 from flask_httpauth import HTTPTokenAuth
 from flask_marshmallow import Marshmallow
 from flask_mysqldb import MySQL
+from flask_pymongo import PyMongo
 
 import sentry_sdk
 from sentry_sdk.integrations.flask import FlaskIntegration
@@ -12,6 +13,7 @@ from config import app_config
 
 db = MySQL()
 ma = Marshmallow()
+mongo = PyMongo()
 auth = HTTPBasicAuth()
 token_auth = HTTPTokenAuth()
 from .apis import api
@@ -34,6 +36,7 @@ def create_app(config_name):
     app.config.from_object(app_config[config_name])
     app_config[config_name].init_app(app)
     db.init_app(app)
+    mongo.init_app(app)
     ma.init_app(app)
     api.init_app(app)
 

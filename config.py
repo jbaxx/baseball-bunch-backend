@@ -6,6 +6,7 @@ class Config:
     MYSQL_PASSWORD = os.getenv('MYSQL_PASSWORD')
     MYSQL_DB = os.getenv('MYSQL_DB')
     SECRET_KEY = 'it is really hard foh me'
+    MONGO_URI = os.getenv('MONGO_URI')
 
     @staticmethod
     def init_app(app):
