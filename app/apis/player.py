@@ -9,19 +9,6 @@ from marshmallow import fields
 from MySQLdb import ProgrammingError
 import MySQLdb.cursors
 
-# from flask import abort
-# from flask import g
-# from flask import make_response
-# from flask import request
-# from flask_restplus import Namespace
-# from flask_restplus import Resource
-# from flask_restplus import fields as rest_fields
-# from marshmallow import Schema
-# from marshmallow import ValidationError
-# from marshmallow import fields
-# from MySQLdb import ProgrammingError
-# import MySQLdb.cursors
-
 from .. import db
 from .. import mongo
 from .. import token_auth
@@ -234,7 +221,7 @@ class NamedPlayerStats(Resource):
 
         player_id = parse_url(player_id)
 
-        pred = mongo.db.predictionData.find({'Id': player_id})
+        pred = mongo.db.Data.find({'Id': player_id})
         pred_list = []
         for p in pred:
             p.pop('_id')
