@@ -10,6 +10,7 @@ from .players                 import api as ns4
 from .fantasy_team            import api as ns5
 from .fantasy_team_lineup     import api as ns6
 from .search                  import api as ns7
+from .ml                      import api as ns8
 from .sentry_debug            import api as sentry_debug
 
 # In progress
@@ -49,6 +50,7 @@ api.add_namespace(ns4)
 api.add_namespace(ns5)
 api.add_namespace(ns6)
 api.add_namespace(ns7)
+api.add_namespace(ns8)
 api.add_namespace(sentry_debug)
 
 api.add_namespace(temp_ns6)

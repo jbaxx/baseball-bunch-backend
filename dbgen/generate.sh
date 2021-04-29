@@ -26,3 +26,17 @@ echo cs411baseball_db_table_players_position.sql
 mysql -u $USER_NAME -p < cs411baseball_db_table_players_position.sql
 echo cs411baseball_db_view_vw_players_position.sql
 mysql -u $USER_NAME -p < cs411baseball_db_view_vw_players_position.sql
+echo ml_team_batting_stats.sql
+mysql -u $USER_NAME -p < ml_team_batting_stats.sql
+echo ml_team_fielding_stats.sql
+mysql -u $USER_NAME -p < ml_team_fielding_stats.sql
+echo ml_team_pitching_stats.sql
+mysql -u $USER_NAME -p < ml_team_pitching_stats.sql
+echo ml_team_stats.sql
+mysql -u $USER_NAME -p < ml_team_stats.sql
+echo ml_teamfranch.sql
+mysql -u $USER_NAME -p < ml_teamfranch.sql
+echo ml_teams.sql
+mysql -u $USER_NAME -p < ml_teams.sql
+echo fielding_season_stat.sql
+mysql -u $USER_NAME -p < fielding_season_stat.sql
