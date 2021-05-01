@@ -118,7 +118,8 @@ def get_prediction(fantasy_team_id):
 
 
     # Using StratifiedShuffleSplit for test_size of 0.5
-    sss = StratifiedShuffleSplit(n_splits=5, test_size=0.5, random_state=0)
+    #sss = StratifiedShuffleSplit(n_splits=5, test_size=0.5, random_state=0)
+    sss = StratifiedShuffleSplit(n_splits=20, test_size=0.5, random_state=42)
 
     #clf_list = [LinearSVC(),GaussianNB(),KMeans(init='random',n_clusters=3, max_iter=300, random_state=42)]
     #clf_key_list = ['LinearSVC','GaussianNB','KMeans']
