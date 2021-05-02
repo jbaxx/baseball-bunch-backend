@@ -190,8 +190,8 @@ class Sazon:
         self.PitchingBB = kwargs.get('PitchingBB')
         self.L = kwargs.get('L')
         self.ER = kwargs.get('ER')
-        self._3B = kwargs.get('_3B')
-        self._2B = kwargs.get('_2B')
+        self._3B = kwargs.get('3B')
+        self._2B = kwargs.get('2B')
         self.CS = kwargs.get('CS')
         self.SF = kwargs.get('SF')
         self.BattingH = kwargs.get('BattingH')
@@ -259,8 +259,8 @@ temporada_model = api.model('TemporadaModel', {
     'pitching_bb': rest_fields.String,
     'l': rest_fields.String,
     'er': rest_fields.String,
-    '3b': rest_fields.String,
-    '2b': rest_fields.String,
+    '_3b': rest_fields.String,
+    '_2b': rest_fields.String,
     'cs': rest_fields.String,
     'sf': rest_fields.String,
     'batting_h': rest_fields.String,
