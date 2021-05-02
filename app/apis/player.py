@@ -148,7 +148,33 @@ class SinglePlayer(Resource):
         # return make_response(jsonify(player_result), 200)
 
 
-
+# {"AB":"38","SV":"","PitchingHR":"","G":"10","H":"10","IBB":"","PitchingBB":"","L":"","ER":"","3B":"0","2B":"2","CS":"0","R":"3","SF":"","Year":"1934","BattingH":"","ERA":"","HBP":"","W":"","PitchingSO":"","RBI":"3","Team":"CHA","BattingHR":"1","BattingR":""}
+# {
+#   "AB": "38",
+#   "SV": "",
+#   "PitchingHR": "",
+#   "G": "10",
+#   "H": "10",
+#   "IBB": "",
+#   "PitchingBB": "",
+#   "L": "",
+#   "ER": "",
+#   "3B": "0",
+#   "2B": "2",
+#   "CS": "0",
+#   "R": "3",
+#   "SF": "",
+#   "Year": "1934",
+#   "BattingH": "",
+#   "ERA": "",
+#   "HBP": "",
+#   "W": "",
+#   "PitchingSO": "",
+#   "RBI": "3",
+#   "Team": "CHA",
+#   "BattingHR": "1",
+#   "BattingR": ""
+# }
 
 class Sazon:
     def __init__(self, **kwargs):
@@ -158,6 +184,24 @@ class Sazon:
         self.R = kwargs.get('R', '')
         self.Team = kwargs.get('Team', '')
         self.Year = kwargs.get('Year', '')
+        self.SV = kwargs.get('SV')
+        self.PitchingHR = kwargs.get('PitchingHR')
+        self.IBB = kwargs.get('IBB')
+        self.PitchingBB = kwargs.get('PitchingBB')
+        self.L = kwargs.get('L')
+        self.ER = kwargs.get('ER')
+        self._3B = kwargs.get('_3B')
+        self._2B = kwargs.get('_2B')
+        self.CS = kwargs.get('CS')
+        self.SF = kwargs.get('SF')
+        self.BattingH = kwargs.get('BattingH')
+        self.ERA = kwargs.get('ERA')
+        self.HBP = kwargs.get('HBP')
+        self.W = kwargs.get('W')
+        self.PitchingSO = kwargs.get('PitchingSO')
+        self.RBI = kwargs.get('RBI')
+        self.BattingHR = kwargs.get('BattingHR')
+        self.BattingR = kwargs.get('BattingR')
 
 class Jugador:
     def __init__(self, **kwargs):
@@ -176,6 +220,24 @@ class SeasonsSchema(Schema):
     R = fields.String(data_key='r')
     Team = fields.String(data_key='team')
     Year = fields.String(data_key='year')
+    SV = fields.String(data_key='sv')
+    PitchingHR = fields.String(data_key='pitching_hr')
+    IBB = fields.String(data_key='ibb')
+    PitchingBB = fields.String(data_key='pitching_bb')
+    L = fields.String(data_key='l')
+    ER = fields.String(data_key='er')
+    _3B = fields.String(data_key='_3b')
+    _2B = fields.String(data_key='_2b')
+    CS = fields.String(data_key='cs')
+    SF = fields.String(data_key='sf')
+    BattingH = fields.String(data_key='batting_h')
+    ERA = fields.String(data_key='era')
+    HBP = fields.String(data_key='hbp')
+    W = fields.String(data_key='w')
+    PitchingSO = fields.String(data_key='pitching_so')
+    RBI = fields.String(data_key='rbi')
+    BattingHR = fields.String(data_key='batting_hr')
+    BattingR = fields.String(data_key='batting_r')
 
 class JugadorSchema(Schema):
     FirstName = fields.String(data_key='first_name')
@@ -191,6 +253,24 @@ temporada_model = api.model('TemporadaModel', {
     'r': rest_fields.String,
     'team': rest_fields.String,
     'year': rest_fields.String,
+    'sv': rest_fields.String,
+    'pitching_hr': rest_fields.String,
+    'ibb': rest_fields.String,
+    'pitching_bb': rest_fields.String,
+    'l': rest_fields.String,
+    'er': rest_fields.String,
+    '3b': rest_fields.String,
+    '2b': rest_fields.String,
+    'cs': rest_fields.String,
+    'sf': rest_fields.String,
+    'batting_h': rest_fields.String,
+    'era': rest_fields.String,
+    'hbp': rest_fields.String,
+    'w': rest_fields.String,
+    'pitching_so': rest_fields.String,
+    'rbi': rest_fields.String,
+    'batting_hr': rest_fields.String,
+    'batting_r': rest_fields.String,
     })
 
 jugador_model = api.model('JugadorModel', {
