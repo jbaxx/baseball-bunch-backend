@@ -139,14 +139,29 @@ def get_prediction(fantasy_team_id):
     print ('**************************************')
     print ('prediction results')
     print ('***************************************')
-    # print(classifier_pred_result)
+    print(classifier_pred_result)
 
     print ('**************************************')
     print ('Fantasy Team normalized stat')
     print ('***************************************')
-    # print (fantasy_team_dataset)
+    print (fantasy_team_dataset)
 
-    return classifier_pred_result
+    print ('**************************************')
+    print ('***************************************')
+
+    team_stats = {}
+    for f in fantasy_team_dataset:
+        for k in fantasy_team_dataset[f]:
+            print(float(fantasy_team_dataset[f][k]))
+            team_stats[k] = float(fantasy_team_dataset[f][k])
+
+    classifier_team_output = classifier_pred_result
+    classifier_team_output['fantasy_team_stats'] = team_stats
+    print(classifier_team_output)
+
+
+    # return classifier_pred_result
+    return classifier_team_output
 
 
 @api.route('/<fantasy_team_id>')
