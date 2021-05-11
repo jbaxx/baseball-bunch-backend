@@ -12,7 +12,7 @@ import MySQLdb.cursors
 import pandas as pd
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import LinearSVC
-from sklearn.cluster import KMeans
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import StratifiedShuffleSplit
 from .mlUtils import dict_to_numpyarr_extractFeature
 from .mlUtils import extract_class_label_from_data
@@ -123,8 +123,10 @@ def get_prediction(fantasy_team_id):
 
     #clf_list = [LinearSVC(),GaussianNB(),KMeans(init='random',n_clusters=3, max_iter=300, random_state=42)]
     #clf_key_list = ['LinearSVC','GaussianNB','KMeans']
-    clf_list = [LinearSVC(max_iter=1000,dual=False),GaussianNB(),KMeans(init='random',n_clusters=3, random_state=42)]
-    clf_key_list = ['LinearSVC','GaussianNB','KMeans']
+    #clf_list = [LinearSVC(max_iter=1000,dual=False),GaussianNB(),KMeans(init='random',n_clusters=3, random_state=42)]
+    #clf_key_list = ['LinearSVC','GaussianNB','KMeans']
+    clf_list = [LinearSVC(max_iter=1000),GaussianNB(),KNeighborsClassifier()]
+    clf_key_list = ['LinearSVC','GaussianNB','KNeighbors']
 
 
     for key in fantasy_team_dataset.keys():
